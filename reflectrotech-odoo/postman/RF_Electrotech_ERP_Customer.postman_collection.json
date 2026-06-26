@@ -1,0 +1,533 @@
+{
+  "info": {
+    "name": "RF Electrotech ERP - Customer Module",
+    "_postman_id": "rf-electrotech-customer-v1",
+    "description": "Complete Customer Management API collection for RF Electrotech Manufacturing ERP.\n\nBase URL: http://localhost:5000/api/v1\n\nSetup:\n1. Set {{baseUrl}} = http://localhost:5000/api/v1\n2. Set {{token}} = your JWT access token from login\n3. All requests use Bearer token auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "PASTE_YOUR_JWT_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "customerUuid",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Customer Management",
+      "item": [
+        {
+          "name": "1. Create Customer (Company - GST Registered)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.uuid) {",
+                  "        pm.collectionVariables.set('customerUuid', json.data.uuid);",
+                  "        console.log('Customer UUID saved:', json.data.uuid);",
+                  "    }",
+                  "}",
+                  "pm.test('Status is 201 Created', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response has success=true', function() {",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});",
+                  "pm.test('Customer code is generated', function() {",
+                  "    pm.expect(pm.response.json().data.customerCode).to.match(/^CUST-/);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Acme Circuits Pvt. Ltd.\",\n  \"displayName\": \"Acme Circuits\",\n  \"customerType\": \"COMPANY\",\n  \"email\": \"procurement@acmecircuits.com\",\n  \"phone\": \"+919876543210\",\n  \"alternatePhone\": \"+919876543211\",\n  \"website\": \"https://www.acmecircuits.com\",\n  \"addressLine1\": \"Plot No. 42, SIPCOT Industrial Estate\",\n  \"addressLine2\": \"Phase II, Sriperumbudur\",\n  \"city\": \"Chennai\",\n  \"state\": \"Tamil Nadu\",\n  \"pincode\": \"602105\",\n  \"country\": \"India\",\n  \"gstNumber\": \"33AAAPL1234F1Z5\",\n  \"gstType\": \"REGISTERED\",\n  \"panNumber\": \"AAAPL1234F\",\n  \"creditLimit\": 500000.00,\n  \"paymentTermsDays\": 30,\n  \"contactPerson\": \"Ramesh Kumar\",\n  \"contactDesignation\": \"Purchase Manager\",\n  \"notes\": \"Key OEM customer. Requires COC with every shipment.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"]
+            },
+            "description": "Creates a new customer. Auto-generates customerCode (CUST-YYYYMMDD-NNNNN). Validates unique email and GSTIN."
+          },
+          "response": [
+            {
+              "name": "201 - Customer Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Customer created successfully\",\n  \"data\": {\n    \"uuid\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"customerCode\": \"CUST-20260626-00001\",\n    \"companyName\": \"Acme Circuits Pvt. Ltd.\",\n    \"displayName\": \"Acme Circuits\",\n    \"customerType\": \"COMPANY\",\n    \"email\": \"procurement@acmecircuits.com\",\n    \"phone\": \"+919876543210\",\n    \"gstNumber\": \"33AAAPL1234F1Z5\",\n    \"gstType\": \"REGISTERED\",\n    \"panNumber\": \"AAAPL1234F\",\n    \"creditLimit\": 500000.00,\n    \"paymentTermsDays\": 30,\n    \"status\": \"ACTIVE\",\n    \"deleted\": false,\n    \"version\": 0,\n    \"createdAt\": \"2026-06-26T14:00:00\",\n    \"updatedAt\": \"2026-06-26T14:00:00\",\n    \"createdBy\": \"admin@rfelectrotech.com\",\n    \"updatedBy\": \"admin@rfelectrotech.com\"\n  },\n  \"timestamp\": \"2026-06-26T14:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "2. Create Customer (Individual - Unregistered GST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Suresh Electronics\",\n  \"customerType\": \"INDIVIDUAL\",\n  \"email\": \"suresh@example.com\",\n  \"phone\": \"+918765432109\",\n  \"addressLine1\": \"12, Gandhi Street\",\n  \"city\": \"Coimbatore\",\n  \"state\": \"Tamil Nadu\",\n  \"pincode\": \"641001\",\n  \"country\": \"India\",\n  \"gstType\": \"UNREGISTERED\",\n  \"creditLimit\": 0.00,\n  \"paymentTermsDays\": 0,\n  \"contactPerson\": \"Suresh M\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"]
+            },
+            "description": "Creates an individual customer with no GST registration."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Create Customer (OEM - Export GST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"TechFab Systems Ltd.\",\n  \"displayName\": \"TechFab\",\n  \"customerType\": \"OEM\",\n  \"email\": \"orders@techfab.com\",\n  \"phone\": \"+919999888877\",\n  \"website\": \"https://techfab.com\",\n  \"addressLine1\": \"SEZ Unit 7, Mahindra World City\",\n  \"city\": \"Chennai\",\n  \"state\": \"Tamil Nadu\",\n  \"pincode\": \"603002\",\n  \"gstNumber\": \"33BBBPL5678G2Z6\",\n  \"gstType\": \"EXPORT\",\n  \"panNumber\": \"BBBPL5678G\",\n  \"creditLimit\": 2000000.00,\n  \"paymentTermsDays\": 45,\n  \"contactPerson\": \"Priya Sharma\",\n  \"contactDesignation\": \"Supply Chain Head\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Customer by UUID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('UUID matches', function() {",
+                  "    var uuid = pm.collectionVariables.get('customerUuid');",
+                  "    pm.expect(pm.response.json().data.uuid).to.equal(uuid);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerUuid}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerUuid}}"]
+            },
+            "description": "Retrieves a single customer by their public UUID. Replace {{customerUuid}} with actual UUID from create response."
+          },
+          "response": [
+            {
+              "name": "200 - Customer Found",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Customer retrieved successfully\",\n  \"data\": {\n    \"uuid\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"customerCode\": \"CUST-20260626-00001\",\n    \"companyName\": \"Acme Circuits Pvt. Ltd.\",\n    \"status\": \"ACTIVE\",\n    \"deleted\": false\n  },\n  \"timestamp\": \"2026-06-26T14:00:00\"\n}"
+            },
+            {
+              "name": "404 - Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Customer not found with uuid: '550e8400-e29b-41d4-a716-446655440000'\",\n  \"timestamp\": \"2026-06-26T14:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "5. List All Customers (Default Pagination)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers?page=0&size=20&sortBy=createdAt&sortDir=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "sortBy", "value": "createdAt" },
+                { "key": "sortDir", "value": "desc" }
+              ]
+            },
+            "description": "Lists all active customers with default pagination (page 0, 20 per page, sorted by newest first)."
+          },
+          "response": []
+        },
+        {
+          "name": "6. Search Customers by Keyword",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers?search=Acme&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "search", "value": "Acme", "description": "Searches companyName, email, customerCode, GST, phone" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Full-text search across companyName, displayName, customerCode, email, gstNumber, phone."
+          },
+          "response": []
+        },
+        {
+          "name": "7. Filter by Customer Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers?customerType=OEM&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "customerType", "value": "OEM", "description": "INDIVIDUAL | COMPANY | GOVERNMENT | OEM | CEM | DISTRIBUTOR" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8. Filter by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers?status=ACTIVE&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "status", "value": "ACTIVE", "description": "ACTIVE | INACTIVE | BLOCKED" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9. Filter by GST Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers?gstType=REGISTERED&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "gstType", "value": "REGISTERED", "description": "REGISTERED | UNREGISTERED | COMPOSITION | EXPORT | CONSUMER" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10. Filter by City and State",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers?city=Chennai&state=Tamil Nadu&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "city", "value": "Chennai" },
+                { "key": "state", "value": "Tamil Nadu" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11. Combined Search + Filter + Sort",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers?search=Chennai&customerType=COMPANY&status=ACTIVE&gstType=REGISTERED&page=0&size=10&sortBy=companyName&sortDir=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "search", "value": "Chennai" },
+                { "key": "customerType", "value": "COMPANY" },
+                { "key": "status", "value": "ACTIVE" },
+                { "key": "gstType", "value": "REGISTERED" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sortBy", "value": "companyName" },
+                { "key": "sortDir", "value": "asc" }
+              ]
+            },
+            "description": "All filters combined — search + customerType + status + gstType + city + sort by companyName ascending."
+          },
+          "response": []
+        },
+        {
+          "name": "12. Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Acme Circuits Pvt. Ltd.\",\n  \"displayName\": \"Acme Circuits (Updated)\",\n  \"customerType\": \"COMPANY\",\n  \"email\": \"procurement@acmecircuits.com\",\n  \"phone\": \"+919876543210\",\n  \"addressLine1\": \"Plot No. 42, SIPCOT Industrial Estate\",\n  \"addressLine2\": \"Phase II, Sriperumbudur\",\n  \"city\": \"Chennai\",\n  \"state\": \"Tamil Nadu\",\n  \"pincode\": \"602105\",\n  \"gstNumber\": \"33AAAPL1234F1Z5\",\n  \"gstType\": \"REGISTERED\",\n  \"panNumber\": \"AAAPL1234F\",\n  \"creditLimit\": 750000.00,\n  \"paymentTermsDays\": 45,\n  \"contactPerson\": \"Ramesh Kumar\",\n  \"contactDesignation\": \"VP Procurement\",\n  \"notes\": \"Upgraded credit limit approved by CFO on 26-Jun-2026.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerUuid}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerUuid}}"]
+            },
+            "description": "Updates customer. Uses PATCH semantics internally — only non-null fields are applied to existing record."
+          },
+          "response": []
+        },
+        {
+          "name": "13. Change Status to INACTIVE",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerUuid}}/status?status=INACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerUuid}}", "status"],
+              "query": [
+                { "key": "status", "value": "INACTIVE", "description": "ACTIVE | INACTIVE | BLOCKED | PENDING | ARCHIVED" }
+              ]
+            },
+            "description": "Changes customer status to INACTIVE. Deleted customers cannot have status changed."
+          },
+          "response": []
+        },
+        {
+          "name": "14. Change Status to BLOCKED",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerUuid}}/status?status=BLOCKED",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerUuid}}", "status"],
+              "query": [
+                { "key": "status", "value": "BLOCKED" }
+              ]
+            },
+            "description": "Blocks a customer. Blocked customers cannot be soft-deleted until unblocked."
+          },
+          "response": []
+        },
+        {
+          "name": "15. Change Status to ACTIVE",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerUuid}}/status?status=ACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerUuid}}", "status"],
+              "query": [
+                { "key": "status", "value": "ACTIVE" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "16. Soft Delete Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Delete message present', function() {",
+                  "    pm.expect(pm.response.json().message).to.include('deleted');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerUuid}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerUuid}}"]
+            },
+            "description": "Soft-deletes the customer (sets deleted=true, status=INACTIVE). Record remains in DB for audit. Blocked customers cannot be deleted."
+          },
+          "response": [
+            {
+              "name": "200 - Deleted",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Customer deleted successfully\",\n  \"timestamp\": \"2026-06-26T14:00:00\"\n}"
+            },
+            {
+              "name": "422 - Cannot Delete Blocked",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Cannot delete a blocked customer. Please unblock first.\",\n  \"timestamp\": \"2026-06-26T14:00:00\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "ERR - Duplicate Email",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Another Company\",\n  \"customerType\": \"COMPANY\",\n  \"email\": \"procurement@acmecircuits.com\",\n  \"gstType\": \"UNREGISTERED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"]
+            },
+            "description": "Expects 409 Conflict — email already exists."
+          },
+          "response": [
+            {
+              "name": "409 - Conflict",
+              "status": "Conflict",
+              "code": 409,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Customer already exists with email: 'procurement@acmecircuits.com'\",\n  \"timestamp\": \"2026-06-26T14:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "ERR - Invalid GSTIN Format",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Test Company\",\n  \"customerType\": \"COMPANY\",\n  \"email\": \"test@newcompany.com\",\n  \"gstNumber\": \"INVALID_GST\",\n  \"gstType\": \"REGISTERED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"]
+            },
+            "description": "Expects 400 Validation Error — GSTIN must be 15-character alphanumeric."
+          },
+          "response": [
+            {
+              "name": "400 - Validation Failed",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"errors\": [\n    \"gstNumber: GST number must be a valid 15-character GSTIN\"\n  ],\n  \"timestamp\": \"2026-06-26T14:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "ERR - Customer Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/00000000-0000-0000-0000-000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "00000000-0000-0000-0000-000000000000"]
+            },
+            "description": "Expects 404 — UUID does not exist."
+          },
+          "response": []
+        },
+        {
+          "name": "ERR - Missing Required Fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"missing@fields.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"]
+            },
+            "description": "Expects 400 — companyName and customerType are required."
+          },
+          "response": [
+            {
+              "name": "400 - Missing Fields",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"errors\": [\n    \"companyName: Company name is required\",\n    \"customerType: Customer type is required\"\n  ],\n  \"timestamp\": \"2026-06-26T14:00:00\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

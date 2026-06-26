@@ -4,13 +4,13 @@ import type { NextRequest } from "next/server";
 /**
  * Next.js Edge Middleware — Server-side route protection.
  *
- * Only blocks unauthenticated users from accessing protected routes.
- * We do NOT redirect authenticated users away from /login or /register —
- * the cookie may be expired/invalid, and AuthContext handles that case
- * client-side after a failed refresh attempt.
+ * Blocks unauthenticated users from accessing protected routes.
+ * Protected routes: /dashboard, /profile, /admin, /erp/*
  *
- * Route rules:
- * - /dashboard, /profile, /admin → require refreshToken cookie → redirect /login
+ * Redirect behaviour:
+ * - No refreshToken cookie → redirect to /login?redirect=<original path>
+ * - Authenticated users are NOT redirected away from /login/register;
+ *   AuthContext handles that client-side after a successful token refresh.
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -19,11 +19,9 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/profile") ||
-    pathname.startsWith("/admin");
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/erp");
 
-  // Only block access to protected routes when there's no cookie at all.
-  // If the cookie exists but is expired, AuthContext will handle the redirect
-  // after the refresh attempt fails on the client side.
   if (isProtectedRoute && !hasRefreshToken) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
@@ -38,5 +36,6 @@ export const config = {
     "/dashboard/:path*",
     "/profile/:path*",
     "/admin/:path*",
+    "/erp/:path*",
   ],
 };
